@@ -21,7 +21,7 @@ why should you use this package?
 ### basic example
 
 ```javascript
-const INI = require('INI-master')
+const INI = require('easy-ini')
 const myINI = new INI('cool=awesome')
 myINI.putStringInSection('; so important','[WOW]')
 const giveItBack = createINIString()
