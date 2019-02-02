@@ -1,0 +1,8 @@
+{
+  "name": "easy-ini",
+  "version": "1.0.0",
+  "description": "manage ini files",
+  "main": "index.js",
+  "author": "Gal Angel",
+  "license": "GNUv3"
+}
