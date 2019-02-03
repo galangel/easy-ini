@@ -1,6 +1,6 @@
 {
   "name": "easy-ini",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "manage ini files content",
   "main": "index.js",
   "author": "Gal Angel",

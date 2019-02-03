@@ -16,7 +16,7 @@ why should you use this package?
 
 1. You don't want to manipulate an object and just use stright and forward methods (you can if you insist)
 2. You care about preserving comments
-3. You want want easy formatting and cool logic like merge and replace
+3. You want easy formatting and cool logic like merge and replace
 
 ### basic example
 
@@ -218,7 +218,7 @@ const productConfig = new INI(fs.readFileSync('./amazing_app_info.ini',{encoding
 
 let includes
 while (includes = productConfig.getLinesByMatch("#INCLUDE")){
-    if(includes.length == 0) {break}
+    if (includes.length == 0) {break}
     productConfig.removeLineByMatch('#INCLUDE', true)
     for (const include of includes.reverse()) {
         const includePath = include.split('=')[1]
@@ -229,6 +229,23 @@ while (includes = productConfig.getLinesByMatch("#INCLUDE")){
 productConfig.solveDuplicates()
 const finalConfig = productConfig.createINIString()
 fs.writeFileSync("./final.ini", finalConfig)
+```
+<br>
+
+
+#### ini template proccessing
+```javascript
+const fs = require('fs')
+const INI = require('easy-ini')
+const webCon = new INI(fs.readFileSync('./website_config.ini',{encoding: 'utf8'}))
+// latest=GGEZ.v69.zip
+// download-url=<<SubDomain>>.<<BaseDomain>>/download/%latest%
+webCon.findAndReplace('<<BaseDomain>>', 'easy-ini.com', true)
+webCon.findAndReplace('<<SubDomain>>', 'download', true)
+webCon.findAndReplace('<<Author>>', 'Gal Angel', true)
+webCon.solveSelfReferences('%', '%')
+const upCon = webCon.createINIString()
+fs.writeFileSync("./to_upload.ini", upCon)
 ```
 <br>
 

@@ -58,7 +58,7 @@ class INIClass{
         const lines = string.split(this.eol)
         if (this._findType(lines[0]) != _SECTION) {iniData.push({[this._defSecName]:[]}) }
         for (let l of lines) {
-            if(this.autoTrim) {l = l.trim()}
+            if (this.autoTrim) {l = l.trim()}
             const lineType = this._findType(l)
             try{
                 this._addByType(iniData, lineType, this._typeScheme[lineType].key(l), this._typeScheme[lineType].val(l))
@@ -80,7 +80,7 @@ class INIClass{
                 sectionString += cleanEmptyLines ? this.eol : ''
                 sectionString += shouldTrim ? `${sName.trim()}${this.eol}` : `${sName}${this.eol}`
             }
-            for(const l of this._secArr(section)) {
+            for (const l of this._secArr(section)) {
                 curLine = this._lineGens[l.type](l, shouldTrim, shouldFix)
                 if (cleanEmptyLines && this._findType(curLine) == _EMPTY_LINE) {continue}
                 if (cleanHashComments && this._findType(curLine) == _HASH_COMMENT) {continue}
@@ -214,7 +214,7 @@ class INIClass{
         for (const sec of this.iniData) {
             const sLines = this._secArr(sec)
             for (const line of sLines) {
-                if(line.type == _PAIR) {
+                if (line.type == _PAIR) {
                     if (line.val.indexOf(token) >= 0) {
                         line.val = line.val.replace(token, value)
                         if (global) {return this.findAndReplace(token, value, global, true)}
