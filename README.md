@@ -24,7 +24,7 @@ why should you use this package?
 const INI = require('easy-ini')
 const myINI = new INI('cool=awesome')
 myINI.putStringInSection('; so important','[WOW]')
-const giveItBack = createINIString()
+const giveItBack = myINI.createINIString()
 ```
 ---
 ## Class Methods:
