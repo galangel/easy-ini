@@ -125,9 +125,10 @@ class INIClass{
         return false
     }
 
-    findAndRemoveSectionIfExists(sectionName) {
+    findAndRemoveSectionIfExists(sectionName, partialMatch = false) {
         for (const [index, section] of this.iniData.entries()) {
-            if (this._secName(section) == sectionName) {
+            if (!partialMatch && this._secName(section) == sectionName ||
+                partialMatch && this._secName(section).indexOf(sectionName) >= 0) {
                 this.iniData.splice(index, 1)
                 return true
             }

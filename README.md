@@ -97,6 +97,7 @@ myINI.findAndRemoveKeyIfExists('cool')
 **```findAndRemoveSectionIfExists```()**
 *remove entire section from object*
 - sectionName
+- partialMatch = false
 ```javascript
 // Remove an entire section
 myINI.findAndRemoveSectionIfExists('[DO_NOT_REMOVE]')
