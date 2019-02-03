@@ -161,6 +161,26 @@ myINI.solveDuplicates()
 ```
 <br>
 
+**```solveSelfReferences```()**
+*use values to replace matching content wrapped by a given prefix and suffix*
+- prefix
+- suffix
+```javascript
+/*  super_secret_config.ini:
+        something=whatever
+        say=ha
+        dude=%say%%say%%say% %relax%
+        relax=%something%               */
+
+myINI.solveSelfReferences('%', '%')
+
+/*  ==>
+        something=whatever
+        say=ha
+        dude=hahaha whatever
+        relax=whatever                  */
+```
+
 **```mergeWith```()**
 *merges with another ini object*
 - anotherINIObject

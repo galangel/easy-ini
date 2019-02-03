@@ -257,6 +257,37 @@ class INIClass{
         return true
     }
 
+    solveSelfReferences(prefix, suffix) {
+        const refReg = new RegExp(`${prefix}(.*?)${suffix}`)
+        let result = false
+        for (const sec of this.iniData) {
+            const sLines = this._secArr(sec)
+            for (const line of sLines) {
+                if (line.type == _PAIR) {
+                    const matchRes = line.val.match(refReg)
+                    if (matchRes && matchRes.length >= 2) {
+                        const suspect = this.getKeyIfExists(matchRes[1])
+                        if (suspect && suspect.val) {
+                            line.val = line.val.replace(matchRes[0], suspect.val)
+                            result = true
+                        }
+                    }
+                } else {
+                    const matchRes = line.key.match(refReg)
+                    if (matchRes && matchRes.length >= 2) {
+                        const suspect = this.getKeyIfExists(matchRes[1])
+                        if (suspect && suspect.val) {
+                            line.key = line.key.replace(matchRes[0], suspect.val)
+                            result = true
+                        }
+                    }
+                }
+            }
+        }
+        if (result) {return this.solveSelfReferences(prefix, suffix)}
+        return true
+    }
+
     mergeWith(anotherINIObject, before = false) {
         const otherINIData = anotherINIObject.iniData
         let sectionFound
