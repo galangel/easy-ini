@@ -192,7 +192,7 @@ myINI.mergeWith(notMyINI)
 #### handling ini dependency
 ```javascript
 const fs = require('fs')
-const INI = require('./INI')
+const INI = require('easy-ini')
 const productConfig = new INI(fs.readFileSync('./amazing_app_info.ini',{encoding: 'utf8'}))
 
 let includes
