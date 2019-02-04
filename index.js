@@ -39,24 +39,20 @@ class INIClass{
         this.iniData = this._createINIData(this.origin)
     }
 
-    _secArr(sec) {return sec[Object.keys(sec)[0]]}
-
-    _secName(sec) {return Object.keys(sec)[0]}
-
-    _getSection(obj, i) {return obj[i][Object.keys(obj[i])[0]]}
-
     _findType(line) {for (let t in this._types) {if (this._types[t](line)) {return t}}}
 
     _addByType(obj, type, key = '', val = '') {
-        if (type == _SECTION) {obj.push({[key]:[]})} else {
-            this._getSection(obj, obj.length -1).push({type, key, val})
+        if (type == _SECTION) {obj.push({name: key, content: []})} else {
+            obj[obj.length -1].content.push({type, key, val})
         }
     }
 
     _createINIData(string) {
         const iniData = []
         const lines = string.split(this.eol)
-        if (this._findType(lines[0]) != _SECTION) {iniData.push({[this._defSecName]:[]}) }
+        if (this._findType(lines[0]) != _SECTION) {
+            iniData.push({name: this._defSecName, content: []})
+        }
         for (let l of lines) {
             if (this.autoTrim) {l = l.trim()}
             const lineType = this._findType(l)
@@ -75,12 +71,11 @@ class INIClass{
         let output = '', curLine = ''
         for (const section of this.iniData) {
             let sectionString = '', contentString = ''
-            const sName = this._secName(section)
-            if (sName != this._defSecName && !noSections) {
+            if (section.name != this._defSecName && !noSections) {
                 sectionString += cleanEmptyLines ? this.eol : ''
-                sectionString += shouldTrim ? `${sName.trim()}${this.eol}` : `${sName}${this.eol}`
+                sectionString += shouldTrim ? `${section.name.trim()}${this.eol}` : `${section.name}${this.eol}`
             }
-            for (const l of this._secArr(section)) {
+            for (const l of section.content) {
                 curLine = this._lineGens[l.type](l, shouldTrim, shouldFix)
                 if (cleanEmptyLines && this._findType(curLine) == _EMPTY_LINE) {continue}
                 if (cleanHashComments && this._findType(curLine) == _HASH_COMMENT) {continue}
@@ -95,8 +90,8 @@ class INIClass{
 
     getKeyIfExists(inputKey) {
         for (const sec of this.iniData) {
-            for (let line of this._secArr(sec)) {
-                if(line.type == _PAIR && line.key.trim() == inputKey.trim()) {
+            for (const line of sec.content) {
+                if (line.type == _PAIR && line.key.trim() == inputKey.trim()) {
                     return line
                 }
             }
@@ -115,9 +110,9 @@ class INIClass{
 
     findAndRemoveKeyIfExists(inputKey) {
         for (const sec of this.iniData) {
-            for (const [index, line] of this._secArr(sec).entries()) {
+            for (const [index, line] of sec.content.entries()) {
                 if (line.type == _PAIR && line.key.trim() == inputKey.trim()) {
-                    this._secArr(sec).splice(index, 1)
+                    sec.content.splice(index, 1)
                     return true
                 }
             }
@@ -127,8 +122,8 @@ class INIClass{
 
     removeEverythingButSections(sections = [], partialMatch = false) {
         for (const [index, section] of this.iniData.entries()) {
-            if (sections.includes(this._secName(section))
-            || (partialMatch && sections.filter(a => this._secName(section).indexOf(a) >= 0).length > 0)) {
+            if (sections.includes(section.name)
+            || (partialMatch && sections.filter(a => section.name.indexOf(a) >= 0).length > 0)) {
                 continue
             } else {
                 this.iniData.splice(index, 1)
@@ -140,8 +135,8 @@ class INIClass{
 
     findAndRemoveSectionIfExists(sectionName, partialMatch = false) {
         for (const [index, section] of this.iniData.entries()) {
-            if (!partialMatch && this._secName(section) == sectionName ||
-                partialMatch && this._secName(section).indexOf(sectionName) >= 0) {
+            if (!partialMatch && section.name == sectionName ||
+                partialMatch && section.name.indexOf(sectionName) >= 0) {
                 this.iniData.splice(index, 1)
                 return true
             }
@@ -158,10 +153,8 @@ class INIClass{
             val: this._typeScheme[stringType].val(string)
         }
         for (const sec of this.iniData) {
-            const sName = this._secName(sec)
-            if (sectionName == sName.trim()) {
-                const lines = this._secArr(sec)
-                for (const line of lines) {
+            if (sectionName == sec.name.trim()) {
+                for (const line of sec.content) {
                     if (line.key == stringObj.key && stringObj.type == _PAIR) {
                         line.val = stringObj.val
                         valueAdded = true
@@ -169,14 +162,14 @@ class INIClass{
                     }
                 }
                 if (!valueAdded) {
-                    lines.push(stringObj)
+                    sec.content.push(stringObj)
                     existingSec = true
                     break
                 }
             }
         }
         if (!existingSec && !valueAdded) {
-            this.iniData.push({[sectionName]:[]})
+            this.iniData.push({name: sectionName, content: []})
             return this.putStringInSection(string, sectionName)
         }
         return true
@@ -185,9 +178,8 @@ class INIClass{
     getLinesByMatch(token) {
         const resultLines = []
         for (const sec of this.iniData) {
-            const sLines = this._secArr(sec)
-            for (const line of sLines) {
-                if(line.type == _PAIR) {
+            for (const line of sec.content) {
+                if (line.type == _PAIR) {
                     if (line.val.indexOf(token) >= 0 || line.key.indexOf(token) >= 0) {
                         resultLines.push(this._lineGens[line.type](line))
                         continue
@@ -204,17 +196,16 @@ class INIClass{
 
     removeLineByMatch(token, global = false, _done = false) {
         for (const sec of this.iniData) {
-            const sLines = this._secArr(sec)
-            for (const [index, line] of sLines.entries()) {
-                if(line.type == _PAIR) {
+            for (const [index, line] of sec.content.entries()) {
+                if (line.type == _PAIR) {
                     if (line.val.indexOf(token) >= 0 || line.key.indexOf(token) >= 0) {
-                        sLines.splice(index, 1)
+                        sec.content.splice(index, 1)
                         if (global) {return this.removeLineByMatch(token, global, true)}
                         else {_done = true; break}
                     }
                 }
                 if (line.key.indexOf(token) >= 0) {
-                    sLines.splice(index, 1)
+                    sec.content.splice(index, 1)
                     if (global) {return this.removeLineByMatch(token, global, true)}
                     else {_done = true; break}
                 }
@@ -225,8 +216,7 @@ class INIClass{
 
     findAndReplace(token, value = '', global = false, _done = false) {
         for (const sec of this.iniData) {
-            const sLines = this._secArr(sec)
-            for (const line of sLines) {
+            for (const line of sec.content) {
                 if (line.type == _PAIR) {
                     if (line.val.indexOf(token) >= 0) {
                         line.val = line.val.replace(token, value)
@@ -246,9 +236,8 @@ class INIClass{
 
     solveDuplicates(preferFirstOccurrence = false) {
         for (const sec of this.iniData) {
-            const sLines = this._secArr(sec)
-            for (const [index, line] of sLines.entries()) {
-                if(line.type == _PAIR) {
+            for (const [index, line] of sec.content.entries()) {
+                if (line.type == _PAIR) {
                     if (preferFirstOccurrence) {
                         const tempKey = line.key
                         line.key = 'TeMpKeY'
@@ -258,7 +247,7 @@ class INIClass{
                         const tempKey = line.key
                         line.key = 'TeMpKeY'
                         if (this.getKeyIfExists(tempKey)) {
-                            sLines.splice(index, 1)
+                            sec.content.splice(index, 1)
                             return this.solveDuplicates(preferFirstOccurrence)
                         } else {
                             line.key = tempKey
@@ -274,8 +263,7 @@ class INIClass{
         const refReg = new RegExp(`${prefix}(.*?)${suffix}`)
         let result = false
         for (const sec of this.iniData) {
-            const sLines = this._secArr(sec)
-            for (const line of sLines) {
+            for (const line of sec.content) {
                 if (line.type == _PAIR) {
                     const matchRes = line.val.match(refReg)
                     if (matchRes && matchRes.length >= 2) {
@@ -306,27 +294,27 @@ class INIClass{
         let sectionFound
         for (const s2 of otherINIData) {
             sectionFound = false
-            const s2Name = this._secName(s2), s2Lines = this._secArr(s2)
             for (const s of this.iniData) {
-                const sName = this._secName(s), sLines = this._secArr(s)
-                if (s2Name == sName) {
-                    if (before) {sLines.unshift(...s2Lines.map(a => ({...a})))}
-                    else {sLines.push(...s2Lines.map(a => ({...a})))}
+                if (s2.name == s.name) {
+                    if (before) {s.content.unshift(...s2.content.map(a => ({...a})))}
+                    else {s.content.push(...s2.content.map(a => ({...a})))}
                     sectionFound = true
                     break
                 }
             }
             if (!sectionFound) {
                 if (before) {
-                    this.iniData.splice(1, 0, {[s2Name]:[]});
-                    this.iniData[1][s2Name].push(...s2Lines.map(a => ({...a})))
+                    const index = this.iniData[0].name == this._defSecName ? 1 : 0
+                    this.iniData.splice(index, 0, {name: s2.name, content: []});
+                    this.iniData[index].content.push(...s2.content.map(a => ({...a})))
                 } else {
-                    this.iniData.push({[s2Name]:[]})
-                    this.iniData[this.iniData.length -1][s2Name].push(...s2Lines.map(a => ({...a})))
+                    this.iniData.push({name: s2.name, content: []})
+                    this.iniData[this.iniData.length -1].content.push(...s2.content.map(a => ({...a})))
                 }
             }
         }
         return true
     }
 }
+
 module.exports = INIClass
