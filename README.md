@@ -100,7 +100,7 @@ myINI.findAndRemoveKeyIfExists('cool')
 - partialMatch = false
 ```javascript
 // wanting to remove everything else
-myINI.removeEverythingButSections(['GLOBALS'])
+myINI.removeEverythingButSections(['[GLOBALS]'])
 // can also be ussed for partial mataches
 myINI.removeEverythingButSections(['GLOB'], true)
 ```

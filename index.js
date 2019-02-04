@@ -127,7 +127,7 @@ class INIClass{
 
     removeEverythingButSections(sections = [], partialMatch = false) {
         for (const [index, section] of this.iniData.entries()) {
-            if (sections.includes(this._secName(section)) || sections.includes(`[${this._secName(section)}]`)
+            if (sections.includes(this._secName(section))
             || (partialMatch && sections.filter(a => this._secName(section).indexOf(a) >= 0).length > 0)) {
                 continue
             } else {
