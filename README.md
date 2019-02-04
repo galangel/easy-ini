@@ -94,6 +94,18 @@ myINI.findAndRemoveKeyIfExists('cool')
 ```
 <br>
 
+**```removeEverythingButSections```()**
+*remove all other sections*
+- sections = []
+- partialMatch = false
+```javascript
+// wanting to remove everything else
+myINI.removeEverythingButSections(['GLOBALS'])
+// can also be ussed for partial mataches
+myINI.removeEverythingButSections(['GLOB'], true)
+```
+<br>
+
 **```findAndRemoveSectionIfExists```()**
 *remove entire section from object*
 - sectionName

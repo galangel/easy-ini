@@ -125,6 +125,19 @@ class INIClass{
         return false
     }
 
+    removeEverythingButSections(sections = [], partialMatch = false) {
+        for (const [index, section] of this.iniData.entries()) {
+            if (sections.includes(this._secName(section)) || sections.includes(`[${this._secName(section)}]`)
+            || (partialMatch && sections.filter(a => this._secName(section).indexOf(a) >= 0).length > 0)) {
+                continue
+            } else {
+                this.iniData.splice(index, 1)
+                return this.removeEverythingButSections(sections, partialMatch)
+            }
+        }
+        return true
+    }
+
     findAndRemoveSectionIfExists(sectionName, partialMatch = false) {
         for (const [index, section] of this.iniData.entries()) {
             if (!partialMatch && this._secName(section) == sectionName ||
