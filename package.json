@@ -1,6 +1,6 @@
 {
   "name": "easy-ini",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "manage ini files content",
   "main": "index.js",
   "author": "Gal Angel",
@@ -9,5 +9,13 @@
     "type": "git",
     "url": "https://github.com/galangel/easy-ini.git"
   },
-  "homepage": "https://github.com/galangel/easy-ini"
+  "homepage": "https://github.com/galangel/easy-ini",
+  "keywords": [
+    "ini",
+    "config",
+    "edit",
+    "easy",
+    "simple",
+    "file"
+  ]
 }
