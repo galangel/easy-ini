@@ -38,8 +38,7 @@ class INIClass{
         ]
         this.iniData = this._createINIData(this.origin)
     }
-
-    _findType(line) {for (let t in this._types) {if (this._types[t](line)) {return t}}}
+    _findType(line) {for (let t in this._types) {if (this._types[t](line)) {return parseInt(t)}}}
 
     _addByType(obj, type, key = '', val = '') {
         if (type == _SECTION) {obj.push({name: key, content: []})} else {
@@ -86,6 +85,19 @@ class INIClass{
             output += sectionString + contentString
         }
         return output
+    }
+
+    createSimpleObject(includeTypes = [4]) {
+        const result = {}
+        for (const sec of this.iniData) {
+            let ref = includeTypes.includes(3) && sec.name != this._defSecName ? result[sec.name] = {} : result
+            for (const line of sec.content) {
+                if(includeTypes.includes(line.type)) {
+                    ref[line.key] = line.val
+                }
+            }
+        }
+        return result
     }
 
     getKeyIfExists(inputKey) {
@@ -260,26 +272,30 @@ class INIClass{
     }
 
     solveSelfReferences(prefix, suffix) {
-        const refReg = new RegExp(`${prefix}(.*?)${suffix}`)
+        const refReg = new RegExp(`${prefix}(.*?)${suffix}`, ['g'])
         let result = false
         for (const sec of this.iniData) {
             for (const line of sec.content) {
                 if (line.type == _PAIR) {
                     const matchRes = line.val.match(refReg)
-                    if (matchRes && matchRes.length >= 2) {
-                        const suspect = this.getKeyIfExists(matchRes[1])
-                        if (suspect && suspect.val) {
-                            line.val = line.val.replace(matchRes[0], suspect.val)
-                            result = true
+                    if (matchRes && matchRes.length > 0) {
+                        for (const match of matchRes) {
+                            const suspect = this.getKeyIfExists(match.replace(prefix, '').replace(suffix, ''))
+                            if (suspect && suspect.val) {
+                                line.val = line.val.replace(match, suspect.val)
+                                result = true
+                            }
                         }
                     }
                 } else {
                     const matchRes = line.key.match(refReg)
-                    if (matchRes && matchRes.length >= 2) {
-                        const suspect = this.getKeyIfExists(matchRes[1])
-                        if (suspect && suspect.val) {
-                            line.key = line.key.replace(matchRes[0], suspect.val)
-                            result = true
+                    if (matchRes && matchRes.length > 0) {
+                        for (const match of matchRes) {
+                            const suspect = this.getKeyIfExists(match.replace(prefix, '').replace(suffix, ''))
+                            if (suspect && suspect.val) {
+                                line.key = line.key.replace(match, suspect.val)
+                                result = true
+                            }
                         }
                     }
                 }

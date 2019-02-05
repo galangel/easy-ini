@@ -63,6 +63,17 @@ const newINIString = myINI.createINIString()
 ```
 <br>
 
+**```createSimpleObject```()**
+*Make an Object including only they types that are specified*
+- includeTypes = \[4\]
+[supported types](#good-to-know)
+```javascript
+// by passing [3,4] , will also create a level for sections
+const newINIString = myINI.createSimpleObject()
+```
+<br>
+
+
 **```getKeyIfExists```()**
 *Get line object by referance {type, key, val}*
 - inputKey
