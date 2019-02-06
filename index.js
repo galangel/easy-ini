@@ -181,7 +181,11 @@ class INIClass{
             }
         }
         if (!existingSec && !valueAdded) {
-            this.iniData.push({name: sectionName, content: []})
+            if (sectionName == this._defSecName) {
+                this.iniData.unshift({name: sectionName, content: []})
+            } else {
+                this.iniData.push({name: sectionName, content: []})
+            }
             return this.putStringInSection(string, sectionName)
         }
         return true
