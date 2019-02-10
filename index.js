@@ -17,7 +17,7 @@ class INIClass{
             {'key': l => l, 'val': () => null},
             {'key': l => l, 'val': () => null},
             {'key': l => l, 'val': () => null},
-            {'key': l => l.split('=')[0], 'val': l => l.split(/=(.+)/)[1]},
+            {'key': l => l.split('=')[0], 'val': l => l.split(/=(.*)/)[1]},
             {'key': l => l, 'val': () => null}
         ]
         this._lineGens = [   //line, trim ,clean(comment garbage)
